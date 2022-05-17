@@ -4,6 +4,7 @@ import background from '../img/background.png';
 
 import Input from './engine/input';
 import Player from './player';
+import Platform from './platform';
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
@@ -12,23 +13,6 @@ canvas.width = 1024;
 canvas.height = 576;
 
 const gravity = 0.5;
-
-class Platform {
-    constructor({x, y, image, width, height}) {
-        this.position = {
-            x,
-            y
-        };
-
-        this.image = image;
-        this.width = width;
-        this.height = height;
-    }
-
-    draw() {
-        ctx.drawImage(this.image, this.position.x, this.position.y);
-    }
-}
 
 class SceneryItem {
     constructor({x, y, image, width, height}) {
