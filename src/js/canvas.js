@@ -2,9 +2,20 @@ import platform from '../img/platform.png';
 import hills from '../img/hills.png';
 import background from '../img/background.png';
 import playerOneStand from '../img/p1_stand.png';
+import playerOneWalk1 from '../img/p1_walk01.png';
+import playerOneWalk2 from '../img/p1_walk02.png';
+import playerOneWalk3 from '../img/p1_walk03.png';
+import playerOneWalk4 from '../img/p1_walk04.png';
+import playerOneWalk5 from '../img/p1_walk05.png';
+import playerOneWalk6 from '../img/p1_walk06.png';
+import playerOneWalk7 from '../img/p1_walk07.png';
+import playerOneWalk8 from '../img/p1_walk08.png';
+import playerOneWalk9 from '../img/p1_walk09.png';
+import playerOneWalk10 from '../img/p1_walk10.png';
+import playerOneWalk11 from '../img/p1_walk11.png';
 
 const canvas = document.querySelector('canvas');
-const canvasContext = canvas.getContext('2d');
+const ctx = canvas.getContext('2d');
 
 canvas.width = 1024;
 canvas.height = 576;
@@ -12,7 +23,7 @@ canvas.height = 576;
 const gravity = 0.5;
 
 class Player {
-    constructor({image, width, height}) {
+    constructor({images, width, height}) {
         this.position = {
             x: 100,
             y: 100
@@ -23,17 +34,41 @@ class Player {
             y: 1
         };
 
-        this.image = image;
+        this.images = images;
+        this.currentImageIndex = 0;
         this.width = width;
         this.height = height;
+
+        this.fps = 16;
+        this.animationUpdateTime = 1000 / this.fps;
+        this.timeSinceLastFrameSwap = 0;
+
+        this.walking = false;
     }
 
     draw() {
-        canvasContext.drawImage(this.image, this.position.x, this.position.y);
+        ctx.drawImage(this.images[this.currentImageIndex], this.position.x, this.position.y);
     }
 
-    update() {
+    update(elapsed) {
+        this.timeSinceLastFrameSwap += elapsed;
+        
         this.draw();
+        
+        if (this.walking === true) {
+
+            if (this.timeSinceLastFrameSwap > this.animationUpdateTime) {
+                
+                // Next walk image
+                if (this.currentImageIndex == this.images.length - 1) {
+                    this.currentImageIndex = 0;
+                } else {
+                    this.currentImageIndex += 1;
+                }
+
+                this.timeSinceLastFrameSwap = 0;
+            }
+        }
 
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
@@ -70,7 +105,7 @@ class Platform {
     }
 
     draw() {
-        canvasContext.drawImage(this.image, this.position.x, this.position.y);
+        ctx.drawImage(this.image, this.position.x, this.position.y);
     }
 }
 
@@ -87,7 +122,7 @@ class SceneryItem {
     }
 
     draw() {
-        canvasContext.drawImage(this.image, this.position.x, this.position.y);
+        ctx.drawImage(this.image, this.position.x, this.position.y);
     }
 }
 
@@ -100,10 +135,24 @@ function createImage (imageSrc) {
 const platformImage = createImage(platform);
 const backgroundImage = createImage(background);
 const hillsImage = createImage(hills);
-const playerOneStandImage = createImage(playerOneStand);
+
+const playerOneImages = [
+    createImage(playerOneStand),
+    createImage(playerOneWalk1),
+    createImage(playerOneWalk2),
+    createImage(playerOneWalk3),
+    createImage(playerOneWalk4),
+    createImage(playerOneWalk5),
+    createImage(playerOneWalk6),
+    createImage(playerOneWalk7),
+    createImage(playerOneWalk8),
+    createImage(playerOneWalk9),
+    createImage(playerOneWalk10),
+    createImage(playerOneWalk11),
+];
 
 const player = new Player({
-    image: playerOneStandImage, 
+    images: playerOneImages, 
     width: 66, 
     height: 92
 });
@@ -151,12 +200,22 @@ const keys = {
 };
 
 let scrollOffset = 0;
+let lastTimeStamp = 0;
+let elapsed = 0;
 
-function animate() {
+function animate(currentTimeStamp) {
     requestAnimationFrame(animate);
 
-    canvasContext.fillStyle = 'white';
-    canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+    if (currentTimeStamp) {
+        elapsed = currentTimeStamp - lastTimeStamp;
+        lastTimeStamp = currentTimeStamp;
+    } else {
+        elapsed = 0;
+        lastTimeStamp = 0;
+    }
+
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     sceneryItems.forEach(sceneryItem => {
         sceneryItem.draw();
@@ -182,7 +241,7 @@ function animate() {
         }
     });
 
-    player.update();
+    player.update(elapsed);
 
     if (scrollOffset > 2000) {
         console.log('You win!!!');
@@ -195,9 +254,11 @@ addEventListener('keydown', ({
     switch (key) {
         case 'ArrowLeft':
             keys.left.pressed = true;
+            player.walking = true;
             break;
         case 'ArrowRight':
             keys.right.pressed = true;
+            player.walking = true;
             break;
         case 'ArrowUp':
             player.velocity.y -= 20;
@@ -211,9 +272,11 @@ addEventListener('keyup', ({
     switch (key) {
         case 'ArrowLeft':
             keys.left.pressed = false;
+            player.walking = false;
             break;
         case 'ArrowRight':
             keys.right.pressed = false;
+            player.walking = false;
             break;
     }
 });
