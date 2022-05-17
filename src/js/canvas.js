@@ -14,6 +14,8 @@ import playerOneWalk9 from '../img/p1_walk09.png';
 import playerOneWalk10 from '../img/p1_walk10.png';
 import playerOneWalk11 from '../img/p1_walk11.png';
 
+import Input from './engine/input';
+
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -52,23 +54,6 @@ class Player {
 
     update(elapsed) {
         this.timeSinceLastFrameSwap += elapsed;
-        
-        this.draw();
-        
-        if (this.walking === true) {
-
-            if (this.timeSinceLastFrameSwap > this.animationUpdateTime) {
-                
-                // Next walk image
-                if (this.currentImageIndex == this.images.length - 1) {
-                    this.currentImageIndex = 0;
-                } else {
-                    this.currentImageIndex += 1;
-                }
-
-                this.timeSinceLastFrameSwap = 0;
-            }
-        }
 
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
@@ -89,6 +74,28 @@ class Player {
                 player.velocity.y = 0;
             }
         });
+
+        if (Input.isPressed('left') || Input.isPressed('right')) {
+            this.walking = true;
+        } else {
+            this.walking = false;
+        }
+        
+        // Walking effect
+        if (this.walking === true) {
+            if (this.timeSinceLastFrameSwap > this.animationUpdateTime) {
+                // Next walk image
+                if (this.currentImageIndex == this.images.length - 1) {
+                    this.currentImageIndex = 0;
+                } else {
+                    this.currentImageIndex += 1;
+                }
+
+                this.timeSinceLastFrameSwap = 0;
+            }
+        }
+
+        this.draw();
     }
 }
 
@@ -190,22 +197,11 @@ const sceneryItems = [
     })
 ];
 
-const keys = {
-    right: {
-        pressed: false
-    },
-    left: {
-        pressed: false
-    }
-};
-
 let scrollOffset = 0;
 let lastTimeStamp = 0;
 let elapsed = 0;
 
 function animate(currentTimeStamp) {
-    requestAnimationFrame(animate);
-
     if (currentTimeStamp) {
         elapsed = currentTimeStamp - lastTimeStamp;
         lastTimeStamp = currentTimeStamp;
@@ -224,17 +220,17 @@ function animate(currentTimeStamp) {
     platforms.forEach(platform => {
         platform.draw();
 
-        if (keys.right.pressed && player.position.x < 400) {
+        if (Input.isPressed('right') && player.position.x < 400) {
             player.velocity.x = 5;
-        } else if (keys.left.pressed && player.position.x > 100) {
+        } else if (Input.isPressed('left') && player.position.x > 100) {
             player.velocity.x = -5;
         } else {
             player.velocity.x = 0;
             
-            if (keys.right.pressed) {
+            if (Input.isPressed('right')) {
                 scrollOffset += 5;
                 platform.position.x -= 5;
-            } else if (keys.left.pressed) {
+            } else if (Input.isPressed('left')) {
                 scrollOffset -= 5;
                 platform.position.x += 5;
             }
@@ -246,39 +242,10 @@ function animate(currentTimeStamp) {
     if (scrollOffset > 2000) {
         console.log('You win!!!');
     }
+
+    requestAnimationFrame(animate);
 }
 
-addEventListener('keydown', ({
-    key
-}) => {
-    switch (key) {
-        case 'ArrowLeft':
-            keys.left.pressed = true;
-            player.walking = true;
-            break;
-        case 'ArrowRight':
-            keys.right.pressed = true;
-            player.walking = true;
-            break;
-        case 'ArrowUp':
-            player.velocity.y -= 20;
-            break;
-    }
-});
-
-addEventListener('keyup', ({
-    key
-}) => {
-    switch (key) {
-        case 'ArrowLeft':
-            keys.left.pressed = false;
-            player.walking = false;
-            break;
-        case 'ArrowRight':
-            keys.right.pressed = false;
-            player.walking = false;
-            break;
-    }
-});
+Input.init();
 
 animate();
