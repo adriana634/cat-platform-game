@@ -94,23 +94,23 @@ const Game = {
     },
 
     handlePlayerMovement() {
-        this.platforms.forEach(platform => {
-            if (Input.isPressed('right') && Player.position.x < 400) {
-                Player.velocity.x = 5;
-            } else if (Input.isPressed('left') && Player.position.x > 100) {
-                Player.velocity.x = -5;
-            } else {
-                Player.velocity.x = 0;
-                
-                if (Input.isPressed('right')) {
-                    this.scrollOffset += 5;
-                    platform.position.x -= 5;
-                } else if (Input.isPressed('left')) {
-                    this.scrollOffset -= 5;
-                    platform.position.x += 5;
-                }
+        if (Input.isPressed('right') && Player.position.x < 400) {
+            Player.velocity.x = 5;
+        } else if (Input.isPressed('left') && Player.position.x > 100) {
+            Player.velocity.x = -5;
+        } else {
+            Player.velocity.x = 0;
+            
+            if (Input.isPressed('right')) {
+                this.scrollOffset += 5;
+                this.platforms.forEach(platform => platform.position.x -= 5);
+                this.sceneryItems.forEach(sceneryItem => sceneryItem.position.x -= 3);
+            } else if (Input.isPressed('left')) {
+                this.scrollOffset -= 5;
+                this.platforms.forEach(platform => platform.position.x += 5);
+                this.sceneryItems.forEach(sceneryItem => sceneryItem.position.x += 3);
             }
-        });
+        }
     },
 
     render(currentFrameTimeStamp) {
@@ -138,11 +138,11 @@ const Game = {
         // Draw scenery items
         this.sceneryItems.forEach(sceneryItem => sceneryItem.draw(this.context));
 
-        // Draw player
-        Player.draw(this.context);
-
         // Draw platforms
         this.platforms.forEach(platform => platform.draw(this.context));
+
+        // Draw player
+        Player.draw(this.context);
         
         // Check winning
         if (this.scrollOffset > 2000) {
