@@ -7,6 +7,8 @@ import Player from './player';
 import Platform from './platform';
 import SceneryItem from './scenery_item';
 
+import { createImage } from './utils';
+
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -14,12 +16,6 @@ canvas.width = 1024;
 canvas.height = 576;
 
 const gravity = 0.5;
-
-function createImage (imageSrc) {
-    const image = new Image();
-    image.src = imageSrc;  
-    return image;  
-}
 
 const platformImage = createImage(platform);
 const backgroundImage = createImage(background);

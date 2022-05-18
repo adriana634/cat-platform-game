@@ -13,14 +13,10 @@ import playerOneWalk9 from '../img/p1_walk09.png';
 import playerOneWalk10 from '../img/p1_walk10.png';
 import playerOneWalk11 from '../img/p1_walk11.png';
 
+import { createImage } from './utils';
+
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
-
-function createImage (imageSrc) {
-    const image = new Image();
-    image.src = imageSrc;  
-    return image;  
-}
 
 const playerOneImages = [
     createImage(playerOneStand),
