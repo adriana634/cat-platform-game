@@ -1,6 +1,3 @@
-const canvas = document.querySelector('canvas');
-const ctx = canvas.getContext('2d');
-
 class Platform {
     constructor({x, y, image, width, height}) {
         this.position = {
@@ -13,8 +10,8 @@ class Platform {
         this.height = height;
     }
 
-    draw() {
-        ctx.drawImage(this.image, this.position.x, this.position.y);
+    draw(context) {
+        context.drawImage(this.image, this.position.x, this.position.y);
     }
 }
 

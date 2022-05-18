@@ -15,9 +15,6 @@ import playerOneWalk11 from '../img/p1_walk11.png';
 
 import { createImage } from './utils';
 
-const canvas = document.querySelector('canvas');
-const ctx = canvas.getContext('2d');
-
 const playerOneImages = [
     createImage(playerOneStand),
     createImage(playerOneWalk1),
@@ -57,8 +54,8 @@ const Player = {
         this.walking = false;
     },
 
-    draw() {
-        ctx.drawImage(this.images[this.currentImageIndex], this.position.x, this.position.y);
+    draw(context) {
+        context.drawImage(this.images[this.currentImageIndex], this.position.x, this.position.y);
     },
 
     update(elapsed) {
@@ -93,8 +90,6 @@ const Player = {
                 this.timeSinceLastFrameSwap = 0;
             }
         }
-
-        this.draw();
     }
 };
 
