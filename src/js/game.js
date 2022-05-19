@@ -10,6 +10,9 @@ import background from '../img/background.png';
 import { createImage } from './utils';
 
 const Game = {
+    WIN_TEXT: 'You win!!!',
+    GAME_OVER_TEXT: 'Game Over',
+
     init() {
         this.canvas                 = document.querySelector('canvas');
         this.context                = this.canvas.getContext('2d');
@@ -24,6 +27,8 @@ const Game = {
         this.elapsedSinceLastFrame  = 0;
 
         this.images                 = {};
+
+        this.endOfGame              = false;
     },
 
     loadAssets() {
@@ -43,6 +48,20 @@ const Game = {
             }), 
             new Platform({
                 x: 345, 
+                y: 506, 
+                image: this.images['platform'],
+                width: 350,
+                height: 70
+            }),
+            new Platform({
+                x: 800, 
+                y: 506, 
+                image: this.images['platform'],
+                width: 350,
+                height: 70
+            }),
+            new Platform({
+                x: 1145, 
                 y: 506, 
                 image: this.images['platform'],
                 width: 350,
@@ -78,8 +97,6 @@ const Game = {
         // Canvas collision detection
         if (Player.position.y + Player.height + Player.velocity.y <= this.height) {
             Player.velocity.y += this.gravity;
-        } else {
-            Player.velocity.y = 0;
         }
     
         // Platform collision detection
@@ -103,14 +120,34 @@ const Game = {
             
             if (Input.isPressed('right')) {
                 this.scrollOffset += 5;
+
+                // Platforms movement
                 this.platforms.forEach(platform => platform.position.x -= 5);
+
+                // Parallax effect
                 this.sceneryItems.forEach(sceneryItem => sceneryItem.position.x -= 3);
             } else if (Input.isPressed('left')) {
                 this.scrollOffset -= 5;
+
+                // Platforms movement
                 this.platforms.forEach(platform => platform.position.x += 5);
+
+                // Parallax effect
                 this.sceneryItems.forEach(sceneryItem => sceneryItem.position.x += 3);
             }
         }
+    },
+
+    displayCenteredText(text) {
+        this.context.font = '64px sans-serif';
+
+        const textWidth = this.context.measureText(text).width;
+        const { x, y } = { 
+            x: (this.width / 2) - (textWidth / 2), 
+            y: this.height / 2 
+        };
+
+        this.context.fillText(text, x, y);
     },
 
     render(currentFrameTimeStamp) {
@@ -144,13 +181,22 @@ const Game = {
         // Draw player
         Player.draw(this.context);
         
-        // Check winning
+        // Win condition
         if (this.scrollOffset > 2000) {
-            console.log('You win!!!');
+            this.endOfGame = true;
+            this.displayCenteredText(Game.WIN_TEXT);
+        }
+
+        // Lose condition
+        if (Player.position.y > this.canvas.height) {
+            this.endOfGame = true;
+            this.displayCenteredText(Game.GAME_OVER_TEXT);
         }
     
         // Loop
-        requestAnimationFrame(this.render.bind(this));
+        if (this.endOfGame == false) {
+            requestAnimationFrame(this.render.bind(this));
+        }
     }
 }
 
