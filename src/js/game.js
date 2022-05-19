@@ -1,11 +1,26 @@
 import Input from './engine/input';
 import Player from './player';
+
+import Platforms from './platforms';
 import Platform from './platform';
+
+import SceneryItems from './scenery_items';
 import SceneryItem from './scenery_item';
+
+import CollectibleItems from './collectible_items';
+import CollectibleItem from './collectible_item';
 
 import platform from '../img/platform.png';
 import hills from '../img/hills.png';
 import background from '../img/background.png';
+
+import coinBronze from '../img/coinBronze.png';
+import coinGold from '../img/coinGold.png';
+import coinSilver from '../img/coinSilver.png';
+import gemBlue from '../img/gemBlue.png';
+import gemGreen from '../img/gemGreen.png';
+import gemRed from '../img/gemRed.png';
+import gemYellow from '../img/gemYellow.png';
 
 import { createImage } from './utils';
 
@@ -35,56 +50,39 @@ const Game = {
         this.images['platform']     = createImage(platform);
         this.images['background']   = createImage(background);
         this.images['hills']        = createImage(hills);
+        this.images['coinBronze']   = createImage(coinBronze);
+        this.images['coinGold']     = createImage(coinGold);
+        this.images['coinSilver']   = createImage(coinSilver);
+        this.images['gemBlue']      = createImage(gemBlue);
+        this.images['gemGreen']     = createImage(gemGreen);
+        this.images['gemRed']       = createImage(gemRed);
+        this.images['gemYellow']    = createImage(gemYellow);
     },
 
     setupGame() {
-        this.platforms = [
-            new Platform({
-                x: -1, 
-                y: 506, 
-                image: this.images['platform'],
-                width: 350,
-                height: 70
-            }), 
-            new Platform({
-                x: 345, 
-                y: 506, 
-                image: this.images['platform'],
-                width: 350,
-                height: 70
-            }),
-            new Platform({
-                x: 800, 
-                y: 506, 
-                image: this.images['platform'],
-                width: 350,
-                height: 70
-            }),
-            new Platform({
-                x: 1145, 
-                y: 506, 
-                image: this.images['platform'],
-                width: 350,
-                height: 70
-            })
-        ];
+        this.platforms = Platforms.map(platform => new Platform({
+            x: platform.x, 
+            y: platform.y, 
+            image: this.images['platform'],
+            width: 350,
+            height: 70
+        }));
 
-        this.sceneryItems = [
-            new SceneryItem({
-                x: 0, 
-                y: 0, 
-                image: this.images['background'],
-                width: 1024,
-                height: 576
-            }), 
-            new SceneryItem({
-                x: 0, 
-                y: 0, 
-                image: this.images['hills'],
-                width: 1024,
-                height: 576
-            })
-        ];
+        this.sceneryItems = SceneryItems.map(sceneryItem => new SceneryItem({
+            x: sceneryItem.x, 
+            y: sceneryItem.y, 
+            image: this.images[sceneryItem.image],
+            width: 1024,
+            height: 576
+        }));
+
+        this.collectibleItems = CollectibleItems.map(collectibleItem => new CollectibleItem({
+            x: collectibleItem.x, 
+            y: collectibleItem.y, 
+            image: this.images[collectibleItem.image],
+            width: collectibleItem.width,
+            height: collectibleItem.height
+        }));
 
         Input.init();
         Player.init();
@@ -124,6 +122,9 @@ const Game = {
                 // Platforms movement
                 this.platforms.forEach(platform => platform.position.x -= 5);
 
+                // Collectible items movement
+                this.collectibleItems.forEach(collectibleItem => collectibleItem.position.x -= 5);
+
                 // Parallax effect
                 this.sceneryItems.forEach(sceneryItem => sceneryItem.position.x -= 3);
             } else if (Input.isPressed('left')) {
@@ -131,6 +132,9 @@ const Game = {
 
                 // Platforms movement
                 this.platforms.forEach(platform => platform.position.x += 5);
+
+                // Collectible items movement
+                this.collectibleItems.forEach(collectibleItem => collectibleItem.position.x += 5);
 
                 // Parallax effect
                 this.sceneryItems.forEach(sceneryItem => sceneryItem.position.x += 3);
@@ -177,6 +181,9 @@ const Game = {
 
         // Draw platforms
         this.platforms.forEach(platform => platform.draw(this.context));
+
+        // Draw collectible items
+        this.collectibleItems.forEach(collectibleItem => collectibleItem.draw(this.context));
 
         // Draw player
         Player.draw(this.context);
