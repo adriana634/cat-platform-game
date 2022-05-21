@@ -1,5 +1,5 @@
 class CollectibleItem {
-    constructor({x, y, image, width, height}) {
+    constructor({ x, y, image, width, height, points }) {
         this.position = {
             x,
             y
@@ -8,10 +8,20 @@ class CollectibleItem {
         this.image = image;
         this.width = width;
         this.height = height;
+
+        this.points = points;
+
+        this.collected = false;
     }
 
     draw(context) {
-        context.drawImage(this.image, this.position.x, this.position.y);
+        if (this.collected === false) {
+            context.drawImage(this.image, this.position.x, this.position.y);
+        }
+    }
+
+    collect() {
+        this.collected = true;
     }
 }
 

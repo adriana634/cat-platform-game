@@ -43,6 +43,8 @@ const Game = {
 
         this.images                 = {};
 
+        this.score                  = 0;
+
         this.endOfGame              = false;
     },
 
@@ -81,7 +83,8 @@ const Game = {
             y: collectibleItem.y, 
             image: this.images[collectibleItem.image],
             width: collectibleItem.width,
-            height: collectibleItem.height
+            height: collectibleItem.height,
+            points: collectibleItem.points
         }));
 
         Input.init();
@@ -106,6 +109,26 @@ const Game = {
                 Player.velocity.y = 0;
             }
         });
+
+        // Collectible items collision detection
+        this.collectibleItems.forEach(collectibleItem => {
+            const collisionOffsetX = Player.position.x - collectibleItem.position.x;
+            const collisionOffsetY = Player.position.y - collectibleItem.position.y;
+
+            if (collisionOffsetX >= -10 && collisionOffsetX <= 10 
+                && collisionOffsetY >= -100 && collisionOffsetY <= 100) {
+                collectibleItem.collect();
+            }
+        });
+
+        // Remove collected items and update score
+        for (let i = this.collectibleItems.length - 1; i >= 0; i--) {
+            const collectibleItem = this.collectibleItems[i];
+            if (collectibleItem.collected) {
+                this.score += collectibleItem.points;
+                this.collectibleItems.splice(i, 1);
+            }
+        }
     },
 
     handlePlayerMovement() {
@@ -154,6 +177,11 @@ const Game = {
         this.context.fillText(text, x, y);
     },
 
+    displayScore() {
+        this.context.font = '32px sans-serif';
+        this.context.fillText(`Score: ${this.score}`, 10, 30);
+    },
+
     render(currentFrameTimeStamp) {
         // Check slapsed time
         if (currentFrameTimeStamp) {
@@ -188,6 +216,9 @@ const Game = {
         // Draw player
         Player.draw(this.context);
         
+        // Display score
+        this.displayScore();
+
         // Win condition
         if (this.scrollOffset > 2000) {
             this.endOfGame = true;
