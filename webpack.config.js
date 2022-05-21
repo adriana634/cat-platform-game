@@ -27,7 +27,11 @@ module.exports = {
             loader: 'file-loader'
           }
         ]
-      }
+      },
+      {
+        test: /\.wav$/,
+        loader: 'file-loader'
+    }
     ]
   },
   plugins: [

@@ -28,6 +28,8 @@ import gemYellow from '../img/gemYellow.png';
 import slimeWalkOne from '../img/slimeWalk1.png';
 import slimeWalkOneReverse from '../img/slimeWalk1_reverse.png';
 
+import stageOne from '../music/stage_1.wav';
+
 import { createImage } from './utils';
 
 const Game = {
@@ -108,6 +110,9 @@ const Game = {
         Input.init();
         Player.init();
 
+        this.audioElement = document.createElement("audio");
+        this.audioElement.src = stageOne;
+        
         this.canvas.width = this.width;
         this.canvas.height = this.height;
     },
@@ -223,6 +228,10 @@ const Game = {
     displayScore() {
         this.context.font = '32px sans-serif';
         this.context.fillText(`Score: ${this.score}`, 10, 30);
+    },
+
+    playMusic() {
+        this.audioElement.play();
     },
 
     render(currentFrameTimeStamp) {
