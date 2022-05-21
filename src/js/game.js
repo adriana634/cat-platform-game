@@ -10,6 +10,9 @@ import SceneryItem from './scenery_item';
 import CollectibleItems from './collectible_items';
 import CollectibleItem from './collectible_item';
 
+import Enemies from './enemies';
+import Enemy from './enemy';
+
 import platform from '../img/platform.png';
 import hills from '../img/hills.png';
 import background from '../img/background.png';
@@ -21,6 +24,9 @@ import gemBlue from '../img/gemBlue.png';
 import gemGreen from '../img/gemGreen.png';
 import gemRed from '../img/gemRed.png';
 import gemYellow from '../img/gemYellow.png';
+
+import slimeWalkOne from '../img/slimeWalk1.png';
+import slimeWalkOneReverse from '../img/slimeWalk1_reverse.png';
 
 import { createImage } from './utils';
 
@@ -49,16 +55,18 @@ const Game = {
     },
 
     loadAssets() {
-        this.images['platform']     = createImage(platform);
-        this.images['background']   = createImage(background);
-        this.images['hills']        = createImage(hills);
-        this.images['coinBronze']   = createImage(coinBronze);
-        this.images['coinGold']     = createImage(coinGold);
-        this.images['coinSilver']   = createImage(coinSilver);
-        this.images['gemBlue']      = createImage(gemBlue);
-        this.images['gemGreen']     = createImage(gemGreen);
-        this.images['gemRed']       = createImage(gemRed);
-        this.images['gemYellow']    = createImage(gemYellow);
+        this.images['platform']             = createImage(platform);
+        this.images['background']           = createImage(background);
+        this.images['hills']                = createImage(hills);
+        this.images['coinBronze']           = createImage(coinBronze);
+        this.images['coinGold']             = createImage(coinGold);
+        this.images['coinSilver']           = createImage(coinSilver);
+        this.images['gemBlue']              = createImage(gemBlue);
+        this.images['gemGreen']             = createImage(gemGreen);
+        this.images['gemRed']               = createImage(gemRed);
+        this.images['gemYellow']            = createImage(gemYellow);
+        this.images['slimeWalkOne']         = createImage(slimeWalkOne);
+        this.images['slimeWalkOneReverse']  = createImage(slimeWalkOneReverse);
     },
 
     setupGame() {
@@ -87,6 +95,16 @@ const Game = {
             points: collectibleItem.points
         }));
 
+        this.enemies = Enemies.map(enemy => new Enemy({
+            x: enemy.x, 
+            y: enemy.y, 
+            waypoints: enemy.waypoints,
+            image: this.images[enemy.image],
+            imageReverse: this.images[enemy.imageReverse],
+            width: 50,
+            height: 28
+        }));
+
         Input.init();
         Player.init();
 
@@ -95,12 +113,19 @@ const Game = {
     },
 
     handleCollisions() {
-        // Canvas collision detection
+        // Canvas collision detection (player)
         if (Player.position.y + Player.height + Player.velocity.y <= this.height) {
             Player.velocity.y += this.gravity;
         }
+
+        // Canvas collision detection (enemies)
+        this.enemies.forEach(enemy => {
+            if (enemy.position.y + enemy.height + enemy.velocity.y <= this.height) {
+                enemy.velocity.y += this.gravity;
+            }
+        });
     
-        // Platform collision detection
+        // Platform collision detection (player)
         this.platforms.forEach(platform => {
             if (Player.position.y + Player.height <= platform.position.y &&
                 Player.position.y + Player.height + Player.velocity.y >= platform.position.y &&
@@ -108,6 +133,18 @@ const Game = {
                 Player.position.x + Player.width <= platform.position.x + platform.width + 20) {
                 Player.velocity.y = 0;
             }
+        });
+
+        // Platform collision detection (enemies)
+        this.platforms.forEach(platform => {
+            this.enemies.forEach(enemy => {
+                if (enemy.position.y + enemy.height <= platform.position.y &&
+                    enemy.position.y + enemy.height + enemy.velocity.y >= platform.position.y &&
+                    enemy.position.x + enemy.width >= platform.position.x &&
+                    enemy.position.x + enemy.width <= platform.position.x + platform.width + 20) {
+                    enemy.velocity.y = 0;
+                }
+            });
         });
 
         // Collectible items collision detection
@@ -148,6 +185,9 @@ const Game = {
                 // Collectible items movement
                 this.collectibleItems.forEach(collectibleItem => collectibleItem.position.x -= 5);
 
+                // Enemies movement
+                this.enemies.forEach(enemy => enemy.position.x -= 5);
+
                 // Parallax effect
                 this.sceneryItems.forEach(sceneryItem => sceneryItem.position.x -= 3);
             } else if (Input.isPressed('left')) {
@@ -158,6 +198,9 @@ const Game = {
 
                 // Collectible items movement
                 this.collectibleItems.forEach(collectibleItem => collectibleItem.position.x += 5);
+
+                // Enemies movement
+                this.enemies.forEach(enemy => enemy.position.x += 5);
 
                 // Parallax effect
                 this.sceneryItems.forEach(sceneryItem => sceneryItem.position.x += 3);
@@ -212,6 +255,9 @@ const Game = {
 
         // Draw collectible items
         this.collectibleItems.forEach(collectibleItem => collectibleItem.draw(this.context));
+
+        // Draw enemies
+        this.enemies.forEach(enemy => enemy.draw(this.context));
 
         // Draw player
         Player.draw(this.context);
